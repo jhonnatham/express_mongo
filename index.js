@@ -7,9 +7,10 @@ mongoose.connect('mongodb://127.0.0.1:27017/cars')
     .then(() => console.log('Connect mongoDB'))
     .catch(() => console.log('Error en la conexion mongo'))
 
-const permisos = require('./validationUser')
-const logs = require('./registerLog')
-const car = require('./cars/car')
+const permisos = require('./middleware/validationUser')
+const logs = require('./middleware/registerLog')
+const car = require('./router/car')
+const user = require('./router/user')
 
 app.use(express.json())
 
@@ -17,10 +18,11 @@ app.use(express.json())
 app.use(permisos)
 
 // middleware path especifico
-app.use('/api/cars$', logs, permisos)
+app.use(logs)
 
 // Example  router  
 app.use('/api/cars', car)
+app.use('/api/user', user)
 
 // example  get
 app.get('/', function (req, res) {
