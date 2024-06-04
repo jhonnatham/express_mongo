@@ -34,7 +34,8 @@ router.post('/create', check('name', 'The name is empty').notEmpty(), async (req
     const user = new User({
         name: req.body.name,
         email: req.body.email,
-        state: req.body.state
+        state: req.body.state,
+        isCustomer: false
     })
 
     const result = await user.save()

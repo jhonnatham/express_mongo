@@ -11,6 +11,7 @@ const userSchema= new mongoose.Schema({
         type: Number,
         enum: [0,1]
     },
+    isCustomer: Boolean,
     date: {type: Date, default: Date.now}
 })
 const User = mongoose.model('user', userSchema)
