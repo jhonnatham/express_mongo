@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
     res.send(users)
 })
 
-router.get('/id/:userid([0-9a-z]+)', async (req, res) => {
+router.get('/:userid([0-9a-z]+)', async (req, res) => {
     const user = await User
         .findById(req.params.userid)
     if (user == undefined) {

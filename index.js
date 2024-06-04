@@ -11,6 +11,7 @@ const permisos = require('./middleware/validationUser')
 const logs = require('./middleware/registerLog')
 const car = require('./router/car')
 const user = require('./router/user')
+const company = require('./router/company')
 
 app.use(express.json())
 
@@ -23,6 +24,7 @@ app.use(logs)
 // Example  router  
 app.use('/api/cars', car)
 app.use('/api/user', user)
+app.use('/api/company', company)
 
 // example  get
 app.get('/', function (req, res) {

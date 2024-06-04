@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const Car = require('../model/car.js')
+const Car = require('../model/car')
+const {Company} = require('../model/company')
 
 const { check, validationResult } = require('express-validator')
 const myValidationResult = validationResult.withDefaults({
@@ -9,13 +10,16 @@ const myValidationResult = validationResult.withDefaults({
 
 
 router.get('/', async (req, res) => {
-    const cars = await Car.find()
+    const cars = await Car
+        .find()
+        //.populate('company', 'name country') // se  utilizado en modelo normalizado
     res.send(cars)
 })
 
-router.get('/id/:carid([0-9a-z]+)', async (req, res) => {
+router.get('/:carid([0-9a-z]+)', async (req, res) => {
     const car = await Car
         .findById(req.params.carid)
+        //.populate('company', 'name country')
     if (car == undefined) {
         res.status(400).send('No se encuentra el vehiculo')
     } else {
@@ -23,20 +27,43 @@ router.get('/id/:carid([0-9a-z]+)', async (req, res) => {
     }
 })
 
-router.get('/company/:company', async (req, res) => {
-    const car = await Car
-        .find({company:req.params.company })
-
-    if (car.length == 0) {
-        res.status(200).send('No se encuentra el vehiculo')
-    } else {
-        res.status(200).send(car)
+// example post con validation modelo embebido (usual en relaciones 1 1 o 1 *)
+router.post('/create', 
+[
+    check('model', 'El modelo no puede  ser vacia').notEmpty(),
+],
+async (req, res) => {
+    const errors = myValidationResult(req).array();
+    if (errors.length > 0) {
+        return res.status(422).json({errors: errors})
     }
+
+    const company = await Company.findById(req.body.company)
+
+    if (!company){
+        return es.status(400).send('Company isnt exist!')
+    }
+
+    const car = new Car({
+        company: company,
+        model: req.body.model,
+        price: req.body.price,
+        year: req.body.year,
+        sold: req.body.sold,
+        extras: req.body.extras
+    })
+
+    const result = await car.save()
+    res.status(201).send(result)
 })
 
-// example post con validation
-
-router.post('/create', check('company', 'The company is empty').notEmpty(), async (req, res) => {
+// example post con validation modelo normalizado
+/**
+router.post('/create', 
+[
+    check('model', 'El modelo no puede  ser vacia').notEmpty(),
+],
+async (req, res) => {
     const errors = myValidationResult(req).array();
     if (errors.length > 0) {
         return res.status(422).json({errors: errors})
@@ -54,11 +81,10 @@ router.post('/create', check('company', 'The company is empty').notEmpty(), asyn
     const result = await car.save()
     res.status(201).send(result)
 })
-
+*/
 
 // example put con validation
 router.put('/:id', [
-    check('company', 'La compania no puede  ser vacia').notEmpty(),
     check('model', 'El modelo no puede  ser vacia').notEmpty(),
 ], async (req, res) => {
     const errors = myValidationResult(req).array();
@@ -71,7 +97,7 @@ router.put('/:id', [
 
     if (!car) return res.status(404).send('No se encuentra el vehiculo')
 
-    car.marca = req.body.company
+    car.company = req.body.company
     car.model = req.body.model
     car.year = req.body.year
 

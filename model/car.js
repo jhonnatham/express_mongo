@@ -1,15 +1,19 @@
 const mongoose = require('mongoose')
+const {companySchema} = require('../model/company')
 
 /**Define Schema */
-const carShema= new mongoose.Schema({
+const carSchema= new mongoose.Schema({
+    /**
+     * Example model normalize
+     * company: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'company'
+        
+    },
+    */
     company: {
-        type: String,
-        required: true,
-        uppercase: true,
-        trim: true,
-        minlength: 2,
-        maxlength: 99,
-        enum: ['BMW', 'AUDI', 'SEAT']
+        type: companySchema,
+        required: true
     },
     model: String,
     sold: Boolean,
@@ -28,6 +32,6 @@ const carShema= new mongoose.Schema({
     extras: [String],
     date: {type: Date, default: Date.now}
 })
-const Car = mongoose.model('car', carShema)
+const Car = mongoose.model('car', carSchema)
 
 module.exports = Car
