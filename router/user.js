@@ -1,4 +1,5 @@
 const express = require('express')
+const bcrypt = require('bcrypt');
 const router = express.Router()
 const User = require('../model/user.js')
 
@@ -25,21 +26,36 @@ router.get('/:userid([0-9a-z]+)', async (req, res) => {
 
 // example post con validation
 
-router.post('/create', check('name', 'The name is empty').notEmpty(), async (req, res) => {
+router.post('/create', [
+    check('name', 'The name is empty').notEmpty(),
+    check('email', 'The email is empty').notEmpty(),
+    check('password', 'The password is empty').notEmpty().isLength({min: 3})
+], async (req, res) => {
     const errors = myValidationResult(req).array();
     if (errors.length > 0) {
         return res.status(422).json({errors: errors})
     }
 
-    const user = new User({
+    let user = await User.findOne({email: req.body.email})
+    if (user) return res.status(400).send('the  user exist')
+
+    const salt = await bcrypt.genSalt(10)
+    const hashPassword = await bcrypt.hash(req.body.password, salt)
+
+    user = new User({
         name: req.body.name,
         email: req.body.email,
         state: req.body.state,
+        password: hashPassword,
         isCustomer: false
     })
 
     const result = await user.save()
-    res.status(201).send(result)
+    res.status(201).send({
+        _id: result._id,
+        name: result.name,
+        email: result.email
+    })
 })
 
 

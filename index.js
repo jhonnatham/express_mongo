@@ -13,6 +13,7 @@ const car = require('./router/car')
 const user = require('./router/user')
 const company = require('./router/company')
 const sale = require('./router/sale')
+const auth = require('./router/auth')
 
 app.use(express.json())
 
@@ -27,7 +28,7 @@ app.use('/api/cars', car)
 app.use('/api/user', user)
 app.use('/api/company', company)
 app.use('/api/sale', sale)
-
+app.use('/api/login', auth)
 // example  get
 app.get('/', function (req, res) {
   res.send('Hello World')
