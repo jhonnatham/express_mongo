@@ -1,5 +1,6 @@
 const express = require('express')
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt')
+
 const router = express.Router()
 const User = require('../model/user.js')
 
@@ -24,7 +25,11 @@ router.post('/', [
         const validatePassword = await bcrypt.compare(req.body.password, user.password)
         if (!validatePassword) return res.status(400).send('Invalid User!')
 
-        res.status(201).send('User correct')
+        const jwtToken = user.generateJWT()
+
+        res.status(201)
+            .header('Authorization', jwtToken)
+            .send('ok!')
     } catch (e) {
         console.group(e.message)
         return res.status(400).send('Invalid User!')

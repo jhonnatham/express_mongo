@@ -1,5 +1,6 @@
 const express = require('express')
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcrypt')
+
 const router = express.Router()
 const User = require('../model/user.js')
 
@@ -51,7 +52,12 @@ router.post('/create', [
     })
 
     const result = await user.save()
-    res.status(201).send({
+
+    const jwtToken = user.generateJWT()
+
+    res.status(201)
+        .header('Authorization', jwtToken)
+        .send({
         _id: result._id,
         name: result.name,
         email: result.email
